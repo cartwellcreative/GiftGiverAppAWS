@@ -4,10 +4,9 @@ version = 0.1
 
 [default]
 [default.global.parameters]
-stack_name = "gift-giver-app"
+stack_name = "gift-giver"
 
 [default.build.parameters]
-cached = true
 parallel = true
 
 [default.validate.parameters]
@@ -17,6 +16,7 @@ lint = true
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
+resolve_image_repos = true
 
 [default.package.parameters]
 resolve_s3 = true

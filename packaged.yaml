@@ -1,0 +1,118 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'gift-giver
+
+  Sample SAM Template for gift-giver
+
+  '
+Parameters:
+  Project:
+    Type: String
+    Description: Project name
+    Default: gift-giver
+  DevStage:
+    Type: String
+    Description: Dev stage
+    Default: dev
+  Developer:
+    Type: String
+    Description: Developer name
+    Default: sarah
+Globals:
+  Function:
+    Timeout: 30
+    Layers:
+    - Ref: AwsSdkLayer
+    Runtime: nodejs20.x
+    CodeUri: ./dist/src
+    LoggingConfig:
+      LogFormat: JSON
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName:
+        Fn::Sub: hello-world-${Project}-${DevStage}-${Developer}
+      Handler: common/handlers/helloWorldApiHandler.handler
+      Role:
+        Fn::GetAtt:
+        - LambdaExecutionRole
+        - Arn
+      Architectures:
+      - x86_64
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /hello
+            Method: get
+      CodeUri: s3://aws-sam-cli-managed-default-samclisourcebucket-rqvhgszodowb/d41078146a12dcceb86b927216d3c51f
+    Metadata:
+      SamResourceId: HelloWorldFunction
+  AwsSdkLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName:
+        Fn::Sub: aws-sdk-layer-${Project}-${DevStage}-${Developer}
+      Description: Layer for aws-sdk
+      ContentUri: s3://aws-sam-cli-managed-default-samclisourcebucket-rqvhgszodowb/b12a584e13bf498a6f974f6b762c85cd
+      CompatibleRuntimes:
+      - nodejs20.x
+    Metadata:
+      SamResourceId: AwsSdkLayer
+  TypeOrmLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName:
+        Fn::Sub: typeorm-layer-${Project}-${DevStage}-${Developer}
+      Description: Layer for typeorm
+      ContentUri: s3://aws-sam-cli-managed-default-samclisourcebucket-rqvhgszodowb/f622c727b282be92a8672d60a28db4a6
+      CompatibleRuntimes:
+      - nodejs20.x
+    Metadata:
+      SamResourceId: TypeOrmLayer
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName:
+        Fn::Sub: lambda-execution-role-${Project}-${DevStage}-${Developer}
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Policies:
+      - PolicyName:
+          Fn::Sub: lambda-execution-policy-${Project}-${DevStage}-${Developer}
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            - states:StartExecution
+            - states:DescribeStateMachine
+            - states:SendTaskSuccess
+            - dynamodb:Query
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - ec2:CreateNetworkInterface
+            - ec2:DescribeNetworkInterfaces
+            - ec2:DeleteNetworkInterface
+            - s3:GetObject
+            - s3:PutObject
+            - s3:ListBucket
+            - s3:ListBucketVersions
+            - s3:ListAllMyBuckets
+            - s3:GetBucketLocation
+            Resource: '*'
+    Metadata:
+      SamResourceId: LambdaExecutionRole
